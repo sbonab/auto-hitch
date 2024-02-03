@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import threading
 import time
 import math
@@ -14,8 +16,8 @@ class Vehicle:
     theta: float = 0.0
     alpha: float = 0.0
     vel: float = 0.0
-    tire_l: float = wb/7
-    tire_w: float = wb/18
+    tire_l: float = wb/5
+    tire_w: float = wb/15
 
     def move(self, dt: float):
         self.x += self.vel * math.cos(self.theta) * dt
@@ -56,9 +58,8 @@ class InputController:
 
 
 class Simulator:
-    def __init__(self, vehicle: Vehicle, input_controller: InputController):
+    def __init__(self, vehicle: Vehicle):
         self.vehicle = vehicle
-        self.input_controller = input_controller
         self.lock = threading.Lock()
         self.running = False
         
@@ -72,12 +73,12 @@ class Simulator:
     def start_plot(self, freq=10):
         plt.ion()  # Enable interactive mode
         fig, ax = plt.subplots()
-        tire_r, = ax.plot([], [], 'k-')
-        tire_f,  = ax.plot([], [], 'k-')
+        tire_r, = ax.plot([], [], 'k-', linewidth=3)
+        tire_f,  = ax.plot([], [], 'k-', linewidth=3)
         # draw the line between p_r and p_f
         body, = ax.plot([], [], 'k-')
-        ax.set_xlim(-10, 10)
-        ax.set_ylim(-10, 10)
+        ax.set_xlim(-5, 5)
+        ax.set_ylim(-5, 10)
         ax.set_aspect('equal')
         # Turn the grid on
         ax.grid(True)
@@ -88,14 +89,6 @@ class Simulator:
                 y_r = self.vehicle.y
                 x_f = self.vehicle.x + self.vehicle.wb * math.cos(self.vehicle.theta)
                 y_f = self.vehicle.y + self.vehicle.wb * math.sin(self.vehicle.theta)
-                # increase vehicle.vel by a random value between -1 and 1
-                self.vehicle.vel += random.uniform(-.1, .1)
-                # cap the vehicle.vel between 0 and 5
-                self.vehicle.vel = max(min(self.vehicle.vel, 5), 0)
-                # increase vehicle.alpha by a random value between -0.1 and 0.1
-                self.vehicle.alpha += random.uniform(-0.1, 0.1)
-                # cap the vehicle.alpha between -0.4 and 0.4
-                self.vehicle.alpha = max(min(self.vehicle.alpha, 0.4), -0.4)
                 
             body.set_data([x_r, x_f], [y_r, y_f])
             
@@ -117,7 +110,7 @@ class Simulator:
 
     def listen_for_data(self):
         while self.running:
-            pipe_path = self.input_controller.get_pipe_path()   
+            pipe_path = PIPE_PATH  
             with open(pipe_path, 'r') as pipe:
                 data = pipe.readline().strip()
                 if data:
@@ -134,27 +127,23 @@ class Simulator:
 
     def start(self):
         self.running = True
-        # Start the input controller in a new thread
-        input_thread = threading.Thread(target=self.input_controller.start)
-        input_thread.start()
         # Start the update method in a new thread
         update_thread = threading.Thread(target=self.start_update)
         update_thread.start()
-        # Start the plot method in a new thread
-        plot_thread = threading.Thread(target=self.start_plot)
-        plot_thread.start()
-        # Start listening for data in the main thread
-        self.listen_for_data()
+        # Start the listen for data method in a new thread
+        listen_thread = threading.Thread(target=self.listen_for_data)
+        listen_thread.start()
+        # Start plotting for data in the main thread
+        self.start_plot()
         # Once listen_for_data is done, stop the threads
         self.running = False
-        input_thread.join()
         update_thread.join()
-        plot_thread.join()
+        listen_thread.join()
 
 vehicle = Vehicle(wb=2.0)
-input_controller = InputController()
+#input_controller = InputController()
 # Usage
-simulator = Simulator(vehicle, input_controller)
+simulator = Simulator(vehicle)
 simulator.start()
 
 os.remove(PIPE_PATH)  # Remove the pipe once we're done
