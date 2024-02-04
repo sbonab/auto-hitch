@@ -8,6 +8,7 @@ import random
 from dataclasses import dataclass
 import os
 import time
+from path import draw_path
 
 @dataclass
 class Vehicle:
@@ -18,7 +19,7 @@ class Vehicle:
     alpha: float = 0.0
     vel: float = 0.0
     s: float = 0.0
-    tire_l: float = wb/5
+    tire_l: float = wb/4.5
     tire_w: float = wb/15
 
     def move(self, dt: float):
@@ -57,12 +58,15 @@ class Simulator:
     def start_plot(self, freq=10):
         plt.ion()  # Enable interactive mode
         fig, ax = plt.subplots()
-        tire_r, = ax.plot([], [], 'k-', linewidth=3)
-        tire_f,  = ax.plot([], [], 'k-', linewidth=3)
+        radius = 6.0
+        draw_path(ax, radius, 0.0, 0.0, self.vehicle.x, self.vehicle.y)
+
+        tire_r, = ax.plot([], [], 'k-', linewidth=4)
+        tire_f,  = ax.plot([], [], 'k-', linewidth=4)
         # draw the line between p_r and p_f
         body, = ax.plot([], [], 'k-')
-        ax.set_xlim(-1, 5)
-        ax.set_ylim(-1, 1)
+        ax.set_xlim(-1, 10)
+        ax.set_ylim(-2, 3)
         ax.set_aspect('equal')
         # Turn the grid on
         ax.grid(True)
@@ -143,7 +147,7 @@ class Simulator:
         listen_thread.join()
         publish_thread.join()  
 
-vehicle = Vehicle(wb=2.0, x=2.0)
+vehicle = Vehicle(wb=3.6, x=6.0, y=1.4)
 #input_controller = InputController()
 # Usage
 simulator = Simulator(vehicle)
