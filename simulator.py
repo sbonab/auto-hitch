@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import random
 from dataclasses import dataclass
 import os
+import time
 
 @dataclass
 class Vehicle:
@@ -16,6 +17,7 @@ class Vehicle:
     theta: float = 0.0
     alpha: float = 0.0
     vel: float = 0.0
+    s: float = 0.0
     tire_l: float = wb/5
     tire_w: float = wb/15
 
@@ -23,39 +25,21 @@ class Vehicle:
         self.x += self.vel * math.cos(self.theta) * dt
         self.y += self.vel * math.sin(self.theta) * dt
         self.theta += self.vel / self.wb * math.tan(self.alpha) * dt
+        self.s += abs(self.vel) * dt
 
 # Define the named pipe (FIFO) for communication
-PIPE_PATH = "/tmp/vehicle_pipe"
+INPUT_PIPE_PATH = "/tmp/vehicle_input.pipe"
+OUTPUT_PIPE_PATH = "/tmp/vehicle_output.pipe"
 
 try:
-    os.mkfifo(PIPE_PATH)
+    os.mkfifo(INPUT_PIPE_PATH)
 except FileExistsError:
-    pass  # If the pipe already exists, there's no need to create it
+    print(f"Input pipe already exists")
 
-class InputController:
-    def __init__(self, pipe_path: str = PIPE_PATH):
-        self.pipe_path = pipe_path
-        self.running = False
-
-    def start(self, freq=10):
-        self.running = True
-        while self.running:
-            with open(self.pipe_path, 'w') as pipe:
-                # Write some example values to the pipe
-                # change vel to some random value between 0 and 5
-                vel = random.uniform(0, 5)
-                alpha =random.uniform(0, 0.1)
-                pipe.write(f"{vel},{alpha}\n")
-                pipe.flush()
-            dt = 1/freq
-            time.sleep(dt)  # Write new values every 0.1 seconds
-
-    def stop(self):
-        self.running = False
-
-    def get_pipe_path(self):
-        return self.pipe_path
-
+try:
+    os.mkfifo(OUTPUT_PIPE_PATH)
+except FileExistsError:
+    print(f"Output pipe already exists")
 
 class Simulator:
     def __init__(self, vehicle: Vehicle):
@@ -63,7 +47,7 @@ class Simulator:
         self.lock = threading.Lock()
         self.running = False
         
-    def start_update(self, freq=50):
+    def start_sim(self, freq=100):
         dt = 1/freq
         while self.running:
             with self.lock:
@@ -77,8 +61,8 @@ class Simulator:
         tire_f,  = ax.plot([], [], 'k-', linewidth=3)
         # draw the line between p_r and p_f
         body, = ax.plot([], [], 'k-')
-        ax.set_xlim(-5, 5)
-        ax.set_ylim(-5, 10)
+        ax.set_xlim(-1, 5)
+        ax.set_ylim(-1, 1)
         ax.set_aspect('equal')
         # Turn the grid on
         ax.grid(True)
@@ -108,16 +92,31 @@ class Simulator:
             time.sleep(dt)
         plt.close(fig)
 
-    def listen_for_data(self):
+    def publish_output(self, freq=50):
+        print(f"Publishing output on {OUTPUT_PIPE_PATH}")
         while self.running:
-            pipe_path = PIPE_PATH  
-            with open(pipe_path, 'r') as pipe:
+            with self.lock:
+                x = self.vehicle.x
+                y = self.vehicle.y
+                theta = self.vehicle.theta
+                s = self.vehicle.s
+            with open(OUTPUT_PIPE_PATH, 'w') as pipe:
+                pipe.write(f"{x} {y} {theta} {s}\n")
+                pipe.flush()
+                print(f"{time.time()} Updated data | x: {x}, y: {y}, theta: {theta}, s: {s}")
+            dt = 1/freq
+            time.sleep(dt)
+
+    def listen_for_input(self):
+        print(f"Listening for input on {INPUT_PIPE_PATH}")
+        while self.running:
+            with open(INPUT_PIPE_PATH, 'r') as pipe:
                 data = pipe.readline().strip()
                 if data:
                     try:
-                        vel_str, alpha_str = data.split(',')
+                        vel_str, alpha_str = data.split(' ')
                         with self.lock:
-                            print(f"Received data: {vel_str}, {alpha_str}")
+                            print(f"{time.time()} Received data | vel: {vel_str}, alpha: {alpha_str}")
                             self.vehicle.vel = float(vel_str)
                             self.vehicle.alpha = float(alpha_str)
                     except ValueError as e:
@@ -127,23 +126,28 @@ class Simulator:
 
     def start(self):
         self.running = True
-        # Start the update method in a new thread
-        update_thread = threading.Thread(target=self.start_update)
-        update_thread.start()
-        # Start the listen for data method in a new thread
-        listen_thread = threading.Thread(target=self.listen_for_data)
+        # Start the simulation in a new thread
+        sim_thread = threading.Thread(target=self.start_sim)
+        sim_thread.start()
+        # Start listening for input in a new thread
+        listen_thread = threading.Thread(target=self.listen_for_input)
         listen_thread.start()
+        # Start publishing output in a new thread
+        publish_thread = threading.Thread(target=self.publish_output)
+        publish_thread.start()
         # Start plotting for data in the main thread
         self.start_plot()
-        # Once listen_for_data is done, stop the threads
+        # Once listen_for_input is done, stop the threads
         self.running = False
-        update_thread.join()
+        sim_thread.join()
         listen_thread.join()
+        publish_thread.join()  
 
-vehicle = Vehicle(wb=2.0)
+vehicle = Vehicle(wb=2.0, x=2.0)
 #input_controller = InputController()
 # Usage
 simulator = Simulator(vehicle)
 simulator.start()
 
-os.remove(PIPE_PATH)  # Remove the pipe once we're done
+os.remove(INPUT_PIPE_PATH)  # Remove the pipe once we're done
+os.remove(OUTPUT_PIPE_PATH)  # Remove the pipe once we're done

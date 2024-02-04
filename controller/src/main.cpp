@@ -2,8 +2,9 @@
 
 int main()
 {
-    const std::string pipePath = "/tmp/vehicle_pipe";
-    InputController inputController(pipePath);
+    const std::string inputPipePath = "/tmp/vehicle_input.pipe";
+    const std::string outputPipePath = "/tmp/vehicle_output.pipe";
+    InputController inputController(inputPipePath, outputPipePath);
 
     inputController.start();
 
