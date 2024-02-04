@@ -7,8 +7,8 @@
 #include <iomanip>
 #include <future>
 
-InputController::InputController(const std::string &inputPipePath, const std::string &outputPipePath)
-    : m_inputPipePath(inputPipePath), m_outputPipePath(outputPipePath), m_isRunning(false)
+InputController::InputController(const std::string &inputPipePath, const std::string &outputPipePath, const InputPlanner &inputPlanner)
+    : m_inputPipePath(inputPipePath), m_outputPipePath(outputPipePath), m_inputPlanner(inputPlanner), m_isRunning(false)
 {
 }
 
@@ -97,5 +97,5 @@ void InputController::readAndUpdateOutput()
 
 void InputController::calculateInputSchedule(const Vehicle &vehicle)
 {
-    m_inputSchedule = InputSchedule<1000>::create(vehicle);
+    m_inputSchedule = m_inputPlanner.createSchedule<1000>(vehicle);
 }

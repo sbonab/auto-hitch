@@ -7,11 +7,12 @@
 #include <optional>
 #include "InputSchedule.hpp"
 #include "Vehicle.hpp"
+#include "InputPlanner.hpp"
 
 class InputController
 {
 public:
-    InputController(const std::string &inputPipePath, const std::string &outputPipePath);
+    InputController(const std::string &inputPipePath, const std::string &outputPipePath, const InputPlanner &inputPlanner);
     ~InputController();
 
     void start();
@@ -21,6 +22,7 @@ public:
 private:
     std::string m_inputPipePath;
     std::string m_outputPipePath;
+    InputPlanner m_inputPlanner;
     std::atomic<bool> m_isRunning;
     std::thread m_writerThread;
     std::thread m_readerThread;
