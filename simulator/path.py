@@ -26,8 +26,8 @@ def generate_path(radius, x_hitch, y_hitch, x_veh_r, y_veh_r):
     d_GG = 2 * math.sqrt((d_OO/2)**2 - radius**2)
     # Angle of tangent line
     theta = np.arcsin((x_veh_r - x_hitch)/d_OO) - np.arccos(2*radius/d_OO)
-    p_G_veh_r = p_veh_r + np.array([-radius * np.sin(theta), -radius + radius * np.cos(theta)])
-    p_G_hitch = p_hitch + np.array([radius * np.sin(theta), radius - radius * np.cos(theta)])
+    p_G_veh_r = p_veh_r + np.array([-radius * np.sin(theta), coef * (-radius + radius * np.cos(theta))])
+    p_G_hitch = p_hitch + np.array([radius * np.sin(theta), coef * (radius - radius * np.cos(theta))])
     path = np.array([p_veh_r, p_G_veh_r, p_G_hitch, p_hitch])
     return path
 
@@ -52,8 +52,12 @@ def draw_path(ax, radius, x_hitch, y_hitch, x_veh_r, y_veh_r):
     # theta is the angle of the arc of the circle for co-tangent
     theta = calculate_theta(radius, x_hitch, y_hitch, x_veh_r, y_veh_r)
     # Plotting the arc
-    arc1 = Arc((x_O1, y_O1), 2*radius, 2*radius, 0, 180 + coef * 90, 180 + coef * 90 + coef * theta * 180 / np.pi, color='red')
-    arc2 = Arc((x_O2, y_O2), 2*radius, 2*radius, 0, 180 + coef * 90, 180 + coef*90 + coef * theta * 180 / np.pi, color='red')
+    arc1_theta1 = 180 + coef * 90
+    arc1_theta2 = 180 + coef * 90 + coef * theta * 180 / np.pi
+    arc2_theta1 = 180 - coef * 90
+    arc2_theta2 = 180 - coef * 90 + coef * theta * 180 / np.pi
+    arc1 = Arc((x_O1, y_O1), 2*radius, 2*radius, 0, min(arc1_theta1, arc1_theta2), max(arc1_theta1, arc1_theta2), color='red')
+    arc2 = Arc((x_O2, y_O2), 2*radius, 2*radius, 0, min(arc2_theta1, arc2_theta2), max(arc2_theta1, arc2_theta2), color='red')
     ax.add_patch(arc1)
     ax.add_patch(arc2)
 

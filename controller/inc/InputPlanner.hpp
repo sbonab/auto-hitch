@@ -45,6 +45,20 @@ public:
         return {sch_s, sch_vel, sch_alpha};
     }
 
+    /**
+     * @brief Creates a circular arc based trajectory for the vehicle to go from the current position to (0, 0)
+     *
+     * This method generates a schedule of positions, velocities, and alpha values along the x-axis for a given vehicle.
+     * The schedule is created based on the maximum x-coordinate of the vehicle and the desired number of points (N).
+     *
+     * @tparam N The number of points in the schedule.
+     * @param vehicle The vehicle for which the schedule is created.
+     * @param radius Turning radius to be used for planning path
+     * @param wb Wheelbase of the vehicle
+     * @param vel_max The maximum longitudinal vehicle velocity to be used fo planning
+     * @return An InputSchedule<N> object representing the generated schedule.
+     */
+
     template <std::size_t N>
     InputSchedule<N> createScheduleCurved(const Vehicle &vehicle, float radius, float wb, float vel_max) const
     {
@@ -69,7 +83,8 @@ public:
         {
             float s = s_max * i / N;
             sch_s[i] = s;
-            float vel = s < s_theta           ? std::max(vel_max * s / s_theta, vel_max / 10)
+            float vel_min_start = 0.2f;
+            float vel = s < s_theta           ? std::max(vel_max * s / s_theta, vel_min_start)
                         : s < s_max - s_theta ? vel_max
                                               : vel_max * (s_max - s) / s_theta;
             sch_vel[i] = -vel;

@@ -5,7 +5,7 @@ project(Controller)
 cmake_minimum_required(VERSION 3.10)
 
 #find_package(Boost REQUIRED)
-#find_package(Threads REQUIRED)
+find_package(Threads REQUIRED)
 
 #SET( CMAKE_CXX_COMPILER "C:/MinGW/bin/g++" )
 
@@ -28,7 +28,7 @@ target_include_directories(controller PUBLIC inc)
 target_link_libraries(controller
     PUBLIC  
         #Boost::boost # Target for header-only dependencies. (Boost include directory)
-        #Threads::Threads
+        Threads::Threads
 )
 
 # Set the output directory

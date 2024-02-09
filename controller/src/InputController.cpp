@@ -99,6 +99,6 @@ void InputController::calculateInputSchedule(const Vehicle &vehicle)
 {
     float radius = 6.0f;
     float wb = 3.6f;
-    float vel_max = 1.0f;
+    float vel_max = 0.5f;
     m_inputSchedule = m_inputPlanner.createScheduleCurved<1000>(vehicle, radius, wb, vel_max);
 }
