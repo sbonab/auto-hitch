@@ -15,10 +15,11 @@ def calculate_theta(radius, x_hitch, y_hitch, x_veh_r, y_veh_r):
     return theta
 
 def generate_path(radius, x_hitch, y_hitch, x_veh_r, y_veh_r):
+    coef = 1 if y_veh_r > y_hitch else -1
     p_hitch = np.array([x_hitch, y_hitch])
     p_veh_r = np.array([x_veh_r, y_veh_r])
-    p_O_hitch = p_hitch + np.array([0, radius]) * (1 if y_veh_r > y_hitch else -1)
-    p_O_veh_r = p_veh_r + np.array([0, radius]) * (-1 if y_veh_r > y_hitch else 1)
+    p_O_hitch = p_hitch + np.array([0, radius]) * coef
+    p_O_veh_r = p_veh_r + np.array([0, radius]) * (-1 * coef)
     # Distance between two circle centers
     d_OO = np.linalg.norm(p_O_veh_r - p_O_hitch)
     # Distance between two tangent points
@@ -35,11 +36,11 @@ def generate_path(radius, x_hitch, y_hitch, x_veh_r, y_veh_r):
 def draw_path(ax, radius, x_hitch, y_hitch, x_veh_r, y_veh_r):
     ax.plot(x_hitch, y_hitch, 'b.')
     ax.plot(x_veh_r, y_veh_r, 'b.')
-    
+    coef = 1 if y_veh_r > y_hitch else -1
     x_O1 = x_hitch
-    y_O1 = y_hitch + radius
+    y_O1 = y_hitch + radius * coef
     x_O2 = x_veh_r
-    y_O2 = y_veh_r - radius
+    y_O2 = y_veh_r - radius * coef
     circle1 = plt.Circle((x_O1, y_O1), radius, color='blue', fill=False)
     circle2 = plt.Circle((x_O2, y_O2), radius, color='blue', fill=False)
     ax.add_patch(circle1)
@@ -51,8 +52,8 @@ def draw_path(ax, radius, x_hitch, y_hitch, x_veh_r, y_veh_r):
     # theta is the angle of the arc of the circle for co-tangent
     theta = calculate_theta(radius, x_hitch, y_hitch, x_veh_r, y_veh_r)
     # Plotting the arc
-    arc1 = Arc((x_O1, y_O1), 2*radius, 2*radius, 0, 270, 270 + theta * 180 / np.pi, color='red')
-    arc2 = Arc((x_O2, y_O2), 2*radius, 2*radius, 0, 90, 90 + theta * 180 / np.pi, color='red')
+    arc1 = Arc((x_O1, y_O1), 2*radius, 2*radius, 0, 180 + coef * 90, 180 + coef * 90 + coef * theta * 180 / np.pi, color='red')
+    arc2 = Arc((x_O2, y_O2), 2*radius, 2*radius, 0, 180 + coef * 90, 180 + coef*90 + coef * theta * 180 / np.pi, color='red')
     ax.add_patch(arc1)
     ax.add_patch(arc2)
 

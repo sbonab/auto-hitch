@@ -55,7 +55,7 @@ class Simulator:
                 self.vehicle.move(dt)
             time.sleep(dt)
 
-    def start_plot(self, freq=10):
+    def start_plot(self, freq=20):
         plt.ion()  # Enable interactive mode
         fig, ax = plt.subplots()
         radius = 6.0
@@ -147,7 +147,7 @@ class Simulator:
         listen_thread.join()
         publish_thread.join()  
 
-vehicle = Vehicle(wb=3.6, x=6.0, y=1.4)
+vehicle = Vehicle(wb=3.6, x=6.0, y=-1.4)
 #input_controller = InputController()
 # Usage
 simulator = Simulator(vehicle)

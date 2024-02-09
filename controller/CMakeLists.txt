@@ -14,7 +14,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Add an executable target
-add_executable(controller src/main.cpp src/InputController.cpp)
+add_executable(controller src/main.cpp src/InputController.cpp src/Point.cpp)
 
 # Set the CXX flags to include debugging symbols
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
