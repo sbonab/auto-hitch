@@ -11,7 +11,7 @@ import time
 from path import draw_path
 
 @dataclass
-class Vehicle:
+class VehicleState:
     wb: float = 2.0
     x: float = 0.0
     y: float = 0.0
@@ -43,7 +43,7 @@ except FileExistsError:
     print(f"Output pipe already exists")
 
 class Simulator:
-    def __init__(self, vehicle: Vehicle):
+    def __init__(self, vehicle: VehicleState):
         self.vehicle = vehicle
         self.lock = threading.Lock()
         self.running = False
@@ -147,7 +147,7 @@ class Simulator:
         listen_thread.join()
         publish_thread.join()  
 
-vehicle = Vehicle(wb=3.6, x=6.0, y=-1.3)
+vehicle = VehicleState(wb=3.6, x=6.0, y=1.3)
 #input_controller = InputController()
 # Usage
 simulator = Simulator(vehicle)

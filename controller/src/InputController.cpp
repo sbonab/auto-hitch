@@ -7,8 +7,8 @@
 #include <iomanip>
 #include <future>
 
-InputController::InputController(const std::string &inputPipePath, const std::string &outputPipePath, const InputPlanner &inputPlanner)
-    : m_inputPipePath(inputPipePath), m_outputPipePath(outputPipePath), m_inputPlanner(inputPlanner), m_isRunning(false)
+InputController::InputController(std::string inputPipePath, std::string outputPipePath, VehicleSpec vehicleSpec)
+    : m_inputPipePath(std::move(inputPipePath)), m_outputPipePath(std::move(outputPipePath)), m_vehicleSpec(std::move(vehicleSpec)), m_pathPlanner(PathPlanner()), m_isRunning(false)
 {
 }
 
@@ -40,14 +40,14 @@ void InputController::calculateAndUpdateInput(std::size_t freq)
     }
     while (m_isRunning)
     {
-        if (!m_vehicle)
+        if (!m_vehicleState)
         {
             auto sleepTime = std::chrono::milliseconds(1000 / freq);
             std::this_thread::sleep_for(sleepTime);
         }
 
-        float velocity = m_inputSchedule->calculateVelocity(m_vehicle->s);
-        float alpha = m_inputSchedule->calculateAlpha(m_vehicle->s);
+        float velocity = m_trajectoryController->calculateVelocity(*m_vehicleState);
+        float alpha = m_trajectoryController->calculateAlpha(*m_vehicleState);
 
         std::string message = std::to_string(velocity) + " " + std::to_string(alpha) + "\n";
         write(pipeFd, message.c_str(), message.size());
@@ -83,22 +83,19 @@ void InputController::readAndUpdateOutput()
             auto now_c = std::chrono::system_clock::to_time_t(now);
             std::cout << std::put_time(std::localtime(&now_c), "%c") << " - Received: "
                       << "x: " << x << ", y: " << y << ", theta: " << theta << ", s: " << s << "\n";
-            Vehicle vehicle{x, y, theta, s};
-            if (!m_vehicle)
+            VehicleState vehicleState{x, y, theta, s};
+            if (!m_vehicleState)
             {
                 std::cout << "Calculating input schedule for the first time" << std::endl;
-                calculateInputSchedule(vehicle);
+                calculateInputSchedule(vehicleState);
             }
-            m_vehicle = vehicle;
+            m_vehicleState = vehicleState;
         }
     }
     close(pipeFd);
 }
 
-void InputController::calculateInputSchedule(const Vehicle &vehicle)
+void InputController::calculateInputSchedule(const VehicleState &vehicleState)
 {
-    float radius = 6.0f;
-    float wb = 3.6f;
-    float vel_max = 0.5f;
-    m_inputSchedule = m_inputPlanner.createScheduleCurved<1000>(vehicle, radius, wb, vel_max);
+    m_trajectoryController = std::make_unique<InterpolatingTrajectoryController>(m_pathPlanner.createPath<1000>(vehicleState, m_vehicleSpec), m_vehicleSpec);
 }
