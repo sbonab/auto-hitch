@@ -41,8 +41,8 @@ def draw_path(ax, radius, x_hitch, y_hitch, x_veh_r, y_veh_r):
     y_O1 = y_hitch + radius * coef
     x_O2 = x_veh_r
     y_O2 = y_veh_r - radius * coef
-    circle1 = plt.Circle((x_O1, y_O1), radius, color='blue', fill=False)
-    circle2 = plt.Circle((x_O2, y_O2), radius, color='blue', fill=False)
+    circle1 = plt.Circle((x_O1, y_O1), radius, color='grey', fill=False, alpha=0.7)
+    circle2 = plt.Circle((x_O2, y_O2), radius, color='grey', fill=False, alpha=0.7)
     ax.add_patch(circle1)
     ax.add_patch(circle2)
     path = generate_path(radius, x_hitch, y_hitch, x_veh_r, y_veh_r)

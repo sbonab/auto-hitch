@@ -25,7 +25,7 @@ class VehicleState:
     def move(self, dt: float):
         self.x += self.vel * math.cos(self.theta) * dt
         self.y += self.vel * math.sin(self.theta) * dt
-        self.theta += self.vel / self.wb * math.tan(self.alpha) * dt
+        self.theta += self.vel / self.wb * math.tan(self.alpha) * dt * 1.4
         self.s += abs(self.vel) * dt
 
 # Define the named pipe (FIFO) for communication

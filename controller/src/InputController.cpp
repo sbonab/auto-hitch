@@ -76,14 +76,14 @@ void InputController::readAndUpdateOutput()
         if (bytesRead > 0)
         {
             buffer[bytesRead] = '\0';
-            float x, y, theta, s;
+            float x, y, phi, s;
             std::istringstream iss(buffer);
-            iss >> x >> y >> theta >> s;
+            iss >> x >> y >> phi >> s;
             auto now = std::chrono::system_clock::now();
             auto now_c = std::chrono::system_clock::to_time_t(now);
             std::cout << std::put_time(std::localtime(&now_c), "%c") << " - Received: "
-                      << "x: " << x << ", y: " << y << ", theta: " << theta << ", s: " << s << "\n";
-            VehicleState vehicleState{x, y, theta, s};
+                      << "x: " << x << ", y: " << y << ", theta: " << phi << ", s: " << s << "\n";
+            VehicleState vehicleState{x, y, phi, s};
             if (!m_vehicleState)
             {
                 std::cout << "Calculating input schedule for the first time" << std::endl;
@@ -97,5 +97,6 @@ void InputController::readAndUpdateOutput()
 
 void InputController::calculateInputSchedule(const VehicleState &vehicleState)
 {
-    m_trajectoryController = std::make_unique<InterpolatingTrajectoryController>(m_pathPlanner.createPath<1000>(vehicleState, m_vehicleSpec), m_vehicleSpec);
+    // m_trajectoryController = std::make_unique<InterpolatingTrajectoryController>(m_pathPlanner.createPath<1000>(vehicleState, m_vehicleSpec), m_vehicleSpec);
+    m_trajectoryController = std::make_unique<SlidingModeTrajectoryController>(m_pathPlanner.createPath<1000>(vehicleState, m_vehicleSpec), m_vehicleSpec);
 }

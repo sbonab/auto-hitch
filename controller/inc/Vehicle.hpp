@@ -5,7 +5,7 @@ struct VehicleState
 {
     float x;
     float y;
-    float theta;
+    float phi;
     float s;
 };
 

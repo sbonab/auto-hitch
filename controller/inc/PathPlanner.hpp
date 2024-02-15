@@ -5,6 +5,7 @@
 #include "Vehicle.hpp"
 #include <cmath>
 #include "Point.hpp"
+#include <iostream>
 
 class PathPlanner
 {
@@ -32,6 +33,7 @@ public:
         std::array<float, N> ref_s;
         std::array<float, N> ref_x;
         std::array<float, N> ref_y;
+        std::array<float, N> ref_phi;
         std::array<float, N> ref_cur;
 
         const auto &radius = spec.radius;
@@ -61,14 +63,16 @@ public:
             if (s < s_theta)
             {
                 float ang_arc = s / radius;
-                ref_x[i] = p_target.x - radius * std::sin(ang_arc);
-                ref_y[i] = p_target.y - coeff * (radius - radius * std::cos(ang_arc));
+                ref_x[i] = p_veh.x - radius * std::sin(ang_arc);
+                ref_y[i] = p_veh.y - coeff * (radius - radius * std::cos(ang_arc));
+                ref_phi[i] = coeff * ang_arc;
                 ref_cur[i] = coeff * 1.0f / radius;
             }
             else if (s < s_max - s_theta)
             {
-                ref_x[i] = p_target.x - radius * std::sin(s_theta / radius) - (s - s_theta) * std::cos(theta);
-                ref_y[i] = p_target.y - coeff * (radius - radius * std::cos(s_theta / radius)) - coeff * (s - s_theta) * std::sin(theta);
+                ref_x[i] = p_veh.x - radius * std::sin(theta) - (s - s_theta) * std::cos(theta);
+                ref_y[i] = p_veh.y - coeff * (radius - radius * std::cos(theta)) - coeff * (s - s_theta) * std::sin(theta);
+                ref_phi[i] = coeff * theta;
                 ref_cur[i] = 0.0f;
             }
             else
@@ -76,11 +80,12 @@ public:
                 float ang_arc = (s_max - s) / radius;
                 ref_x[i] = p_target.x + radius * std::sin(ang_arc);
                 ref_y[i] = p_target.y + coeff * (radius - radius * std::cos(ang_arc));
+                ref_phi[i] = coeff * ang_arc;
                 ref_cur[i] = -coeff * 1.0f / radius;
             }
         }
 
-        return {ref_s, ref_x, ref_y, ref_cur};
+        return ReferencePath<N>{ref_s, ref_x, ref_y, ref_phi, ref_cur};
     }
 };
 
