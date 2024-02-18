@@ -27,3 +27,6 @@ It is all well for the open-loop controller without any uncertainties on the veh
 To develop a more robust controller, a second controller has been designed and implemented which is a sliding mode controller. It defines a sliding surface based on vehicle states where the dynamics of the vehicle path tracking error is asymptotically stable on the this surface. Outside the surface, the controller calculates the controller inputs in a way that the system converges to the sliding surface in a finite time. The video below shows the performance of this controller **in presense of the uncertainties** (click on the image to get redirected to the video).
 
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/kyHB2-2MIo8/0.jpg)](https://youtu.be/kyHB2-2MIo8)
+
+References
+Zhang, Jiaxu, et al. "Trajectory planning and tracking control for autonomous parallel parking of a non-holonomic vehicle." Measurement and Control 53.9-10 (2020): 1800-1816.
