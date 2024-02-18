@@ -16,11 +16,14 @@ Controller has read/write threads to communicate with simulator. It listens to t
 
 ### Path Tracking
 Below, video outputs of the controller on the vehicle with starting point `x = 6m`, `y = 1.3m`, starting orientation `theta = 0`, turning radius `radius = 6 m`, and wheelbase `wb = 3.6 m` are shown below.
-For trajectory controller, there are two controllers designed and implemented for the vehicle to be able to track the reference path. First controller is an open-loop controller. It simply calculates a schedule of inputs based on how long vehicle has moved along the path (path length) and later applies the inputs according to this input. The video below shows the performance of this controller in the ideal world.
+For trajectory controller, there are two controllers designed and implemented for the vehicle to be able to track the reference path. First controller is an open-loop controller. It simply calculates a schedule of inputs based on how long vehicle has moved along the path (path length) and later applies the inputs according to this input. The video below shows the performance of this controller in the ideal world (click on the image to get redirected to the video).
+
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/cOCaXRPYjiI/0.jpg)](https://youtu.be/cOCaXRPYjiI)
 
-It is all well for the open-loop controller without any uncertainties on the vehicle states, controller inputs, and assuming actual vehicle behaviour exactly matches the bicycle model used in deriving open-loop controller inputs. However, this will be most likely not the case. The video below shows how the performance of the open-loop controller deteriorates in presense of uncertainties.
+It is all well for the open-loop controller without any uncertainties on the vehicle states, controller inputs, and assuming actual vehicle behaviour exactly matches the bicycle model used in deriving open-loop controller inputs. However, this will be most likely not the case. The video below shows how the performance of the open-loop controller deteriorates in presense of uncertainties (click on the image to get redirected to the video).
+
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/qAqqdhyA1rw/0.jpg)](https://youtu.be/qAqqdhyA1rw)
 
-To develop a more robust controller, a second controller has been designed and implemented which is a sliding mode controller. It defines a sliding surface based on vehicle states where the dynamics of the vehicle path tracking error is asymptotically stable on the this surface. Outside the surface, the controller calculates the controller inputs in a way that the system converges to the sliding surface in a finite time. The video below shows the performance of this controller **in presense of the uncertainties**.
+To develop a more robust controller, a second controller has been designed and implemented which is a sliding mode controller. It defines a sliding surface based on vehicle states where the dynamics of the vehicle path tracking error is asymptotically stable on the this surface. Outside the surface, the controller calculates the controller inputs in a way that the system converges to the sliding surface in a finite time. The video below shows the performance of this controller **in presense of the uncertainties** (click on the image to get redirected to the video).
+
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/kyHB2-2MIo8/0.jpg)](https://youtu.be/kyHB2-2MIo8)
