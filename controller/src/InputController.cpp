@@ -40,14 +40,21 @@ void InputController::calculateAndUpdateInput(std::size_t freq)
     }
     while (m_isRunning)
     {
-        if (!m_vehicleState)
+        const auto sleepTime{std::chrono::milliseconds(1000 / freq)};
+        decltype(m_vehicleState) vehicleState{};
         {
-            auto sleepTime = std::chrono::milliseconds(1000 / freq);
-            std::this_thread::sleep_for(sleepTime);
+            std::lock_guard<std::mutex> lock(m_vehicleStateMutex);
+            vehicleState = m_vehicleState;
         }
 
-        float velocity = m_trajectoryController->calculateVelocity(*m_vehicleState);
-        float alpha = m_trajectoryController->calculateAlpha(*m_vehicleState);
+        if (!vehicleState)
+        {
+            std::this_thread::sleep_for(sleepTime);
+            continue;
+        }
+
+        float velocity = m_trajectoryController->calculateVelocity(*vehicleState);
+        float alpha = m_trajectoryController->calculateAlpha(*vehicleState);
 
         std::string message = std::to_string(velocity) + " " + std::to_string(alpha) + "\n";
         write(pipeFd, message.c_str(), message.size());
@@ -55,7 +62,6 @@ void InputController::calculateAndUpdateInput(std::size_t freq)
         auto now_c = std::chrono::system_clock::to_time_t(now);
         std::cout << std::put_time(std::localtime(&now_c), "%c") << " - Sent: " << message;
         fsync(pipeFd);
-        auto sleepTime = std::chrono::milliseconds(1000 / freq);
         std::this_thread::sleep_for(sleepTime);
     }
     close(pipeFd);
@@ -84,18 +90,20 @@ void InputController::readAndUpdateOutput()
             std::cout << std::put_time(std::localtime(&now_c), "%c") << " - Received: "
                       << "x: " << x << ", y: " << y << ", theta: " << phi << ", s: " << s << "\n";
             VehicleState vehicleState{x, y, phi, s};
+
+            std::lock_guard<std::mutex> lock(m_vehicleStateMutex);
             if (!m_vehicleState)
             {
                 std::cout << "Calculating input schedule for the first time" << std::endl;
-                calculateInputSchedule(vehicleState);
+                initTrajectoryController(vehicleState);
             }
-            m_vehicleState = vehicleState;
+            m_vehicleState = vehicleState; // Update vehicle state
         }
     }
     close(pipeFd);
 }
 
-void InputController::calculateInputSchedule(const VehicleState &vehicleState)
+void InputController::initTrajectoryController(const VehicleState &vehicleState)
 {
     // m_trajectoryController = std::make_unique<InterpolatingTrajectoryController>(m_pathPlanner.createPath<1000>(vehicleState, m_vehicleSpec), m_vehicleSpec);
     m_trajectoryController = std::make_unique<SlidingModeTrajectoryController>(m_pathPlanner.createPath<1000>(vehicleState, m_vehicleSpec), m_vehicleSpec);

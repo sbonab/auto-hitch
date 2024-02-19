@@ -3,6 +3,7 @@
 
 #include <string>
 #include <atomic>
+#include <mutex>
 #include <thread>
 #include <optional>
 #include "ReferencePath.hpp"
@@ -31,11 +32,12 @@ private:
     std::atomic<bool> m_isRunning;
     std::thread m_writerThread;
     std::thread m_readerThread;
+    std::mutex m_vehicleStateMutex;
     std::optional<VehicleState> m_vehicleState;
 
     void calculateAndUpdateInput(std::size_t freq = 50);
     void readAndUpdateOutput();
-    void calculateInputSchedule(const VehicleState &vehicle);
+    void initTrajectoryController(const VehicleState &vehicle);
 };
 
 #endif // CONTROLLER_INC_INPUTCONTROLLER_HPP
