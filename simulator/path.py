@@ -46,8 +46,8 @@ def draw_path(ax, radius, x_hitch, y_hitch, x_veh_r, y_veh_r):
     ax.add_patch(circle1)
     ax.add_patch(circle2)
     path = generate_path(radius, x_hitch, y_hitch, x_veh_r, y_veh_r)
-    ax.plot(path[:,0], path[:,1], 'r.')
-    ax.plot([path[1, 0], path[2, 0]], [path[1, 1], path[2, 1]], 'r-')
+    ax.plot(path[:,0], path[:,1], 'r.', linewidth=2)
+    ax.plot([path[1, 0], path[2, 0]], [path[1, 1], path[2, 1]], 'r-', linewidth=2)
     
     # theta is the angle of the arc of the circle for co-tangent
     theta = calculate_theta(radius, x_hitch, y_hitch, x_veh_r, y_veh_r)
@@ -56,8 +56,8 @@ def draw_path(ax, radius, x_hitch, y_hitch, x_veh_r, y_veh_r):
     arc1_theta2 = 180 + coef * 90 + coef * theta * 180 / np.pi
     arc2_theta1 = 180 - coef * 90
     arc2_theta2 = 180 - coef * 90 + coef * theta * 180 / np.pi
-    arc1 = Arc((x_O1, y_O1), 2*radius, 2*radius, 0, min(arc1_theta1, arc1_theta2), max(arc1_theta1, arc1_theta2), color='red')
-    arc2 = Arc((x_O2, y_O2), 2*radius, 2*radius, 0, min(arc2_theta1, arc2_theta2), max(arc2_theta1, arc2_theta2), color='red')
+    arc1 = Arc((x_O1, y_O1), 2*radius, 2*radius, 0, min(arc1_theta1, arc1_theta2), max(arc1_theta1, arc1_theta2), color='red', linewidth=2)
+    arc2 = Arc((x_O2, y_O2), 2*radius, 2*radius, 0, min(arc2_theta1, arc2_theta2), max(arc2_theta1, arc2_theta2), color='red', linewidth=2)
     ax.add_patch(arc1)
     ax.add_patch(arc2)
 

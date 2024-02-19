@@ -61,10 +61,10 @@ class Simulator:
         radius = 6.0
         draw_path(ax, radius, 0.0, 0.0, self.vehicle.x, self.vehicle.y)
 
-        tire_r, = ax.plot([], [], 'k-', linewidth=4)
-        tire_f,  = ax.plot([], [], 'k-', linewidth=4)
+        tire_r, = ax.plot([], [], 'k-', linewidth=8)
+        tire_f,  = ax.plot([], [], 'k-', linewidth=8)
         # draw the line between p_r and p_f
-        body, = ax.plot([], [], 'k-')
+        body, = ax.plot([], [], 'k-', linewidth=3)
         ax.set_xlim(-1, 10)
         ax.set_ylim(-3, 3)
         ax.set_aspect('equal')
