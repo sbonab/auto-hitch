@@ -32,8 +32,8 @@ def generate_path(radius, x_hitch, y_hitch, x_veh_r, y_veh_r):
     return path
 
 
-# Function to draw the circles
-def draw_path(ax, radius, x_hitch, y_hitch, x_veh_r, y_veh_r):
+# Function to draw the circular path
+def draw_path_circular(ax, radius, x_hitch, y_hitch, x_veh_r, y_veh_r):
     ax.plot(x_hitch, y_hitch, 'b.')
     ax.plot(x_veh_r, y_veh_r, 'b.')
     coef = 1 if y_veh_r > y_hitch else -1
@@ -61,6 +61,15 @@ def draw_path(ax, radius, x_hitch, y_hitch, x_veh_r, y_veh_r):
     ax.add_patch(arc1)
     ax.add_patch(arc2)
 
+    # Function to draw the straight path
+def draw_path_straight(ax, x_hitch, y_hitch, x_veh_r, y_veh_r):
+    ax.plot(x_hitch, y_hitch, 'r.')
+    ax.plot(x_veh_r, y_veh_r, 'r.')
+    
+    ax.plot([x_hitch, x_veh_r], [y_hitch, y_veh_r], 'red', linewidth=2)
+
+
+
 # b_veh = 3.6
 # w_veh = 1.3
 
@@ -76,7 +85,7 @@ def draw_path(ax, radius, x_hitch, y_hitch, x_veh_r, y_veh_r):
 
 # ax.set_aspect('equal', 'box')
 # plt.subplots_adjust(left=0.25, bottom=0.25)
-# draw_path(ax, radius, x_hitch, y_hitch, x_veh_r, y_veh_r)
+# draw_path_circular(ax, radius, x_hitch, y_hitch, x_veh_r, y_veh_r)
 # ax.grid()
 # ax.set_xlim(-1, 10)
 # ax.set_ylim(-2, 3)

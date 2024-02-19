@@ -54,9 +54,9 @@ void InputController::calculateAndUpdateInput(std::size_t freq)
         }
 
         float velocity = m_trajectoryController->calculateVelocity(*vehicleState);
-        float alpha = m_trajectoryController->calculateAlpha(*vehicleState);
+        float delta = m_trajectoryController->calculateDelta(*vehicleState);
 
-        std::string message = std::to_string(velocity) + " " + std::to_string(alpha) + "\n";
+        std::string message = std::to_string(velocity) + " " + std::to_string(delta) + "\n";
         write(pipeFd, message.c_str(), message.size());
         auto now = std::chrono::system_clock::now();
         auto now_c = std::chrono::system_clock::to_time_t(now);
@@ -106,5 +106,6 @@ void InputController::readAndUpdateOutput()
 void InputController::initTrajectoryController(const VehicleState &vehicleState)
 {
     // m_trajectoryController = std::make_unique<InterpolatingTrajectoryController>(m_pathPlanner.createPath<1000>(vehicleState, m_vehicleSpec), m_vehicleSpec);
-    m_trajectoryController = std::make_unique<SlidingModeTrajectoryController>(m_pathPlanner.createPath<1000>(vehicleState, m_vehicleSpec), m_vehicleSpec);
+    // m_trajectoryController = std::make_u nique<SlidingModeTrajectoryController>(m_pathPlanner.createPath<1000>(vehicleState, m_vehicleSpec), m_vehicleSpec);
+    m_trajectoryController = std::make_unique<PITrajectoryController>(vehicleState, m_vehicleSpec);
 }

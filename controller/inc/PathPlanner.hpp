@@ -16,7 +16,7 @@ public:
     /**
      * @brief Creates a circular arc based trajectory for the vehicle to go from the current position to (0, 0)
      *
-     * This method generates a schedule of positions, velocities, and alpha values along the x-axis for a given vehicle.
+     * This method generates a schedule of positions, velocities, and delta values along the x-axis for a given vehicle.
      * The schedule is created based on the maximum x-coordinate of the vehicle and the desired number of points (N).
      *
      * @tparam N The number of points in the schedule.

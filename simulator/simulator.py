@@ -8,7 +8,7 @@ import random
 from dataclasses import dataclass
 import os
 import time
-from path import draw_path
+from path import draw_path_circular, draw_path_straight
 
 @dataclass
 class VehicleState:
@@ -59,8 +59,8 @@ class Simulator:
         plt.ion()  # Enable interactive mode
         fig, ax = plt.subplots()
         radius = 6.0
-        draw_path(ax, radius, 0.0, 0.0, self.vehicle.x, self.vehicle.y)
-
+        #draw_path_circular(ax, radius, 0.0, 0.0, self.vehicle.x, self.vehicle.y)
+        draw_path_straight(ax, 0.0, 0.0, self.vehicle.x, self.vehicle.y)
         tire_r, = ax.plot([], [], 'k-', linewidth=8)
         tire_f,  = ax.plot([], [], 'k-', linewidth=8)
         # draw the line between p_r and p_f
